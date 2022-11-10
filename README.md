@@ -1,70 +1,76 @@
-# Getting Started with Create React App
+# Setting up
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Create the initial project:
 
-## Available Scripts
+```
+npx create-react-app todo-list
+```
 
-In the project directory, you can run:
+Install some dependencies:
 
-### `npm start`
+```
+npm install --save react-router-dom@5.2.0 @mui/material @emotion/react @emotion/styled @mui/icons-material
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+I also usually like to clear out some files in here.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+# Set up firebase:
 
-### `npm test`
+```
+firebase init
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+For this, I'm selecting:
 
-### `npm run build`
+```
+Firestore: Configure security rules and indexes files for Firestore
+Functions: Configure a Cloud Functions directory and its files
+Hosting: Configure files for Firebase Hosting
+Emulators
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+There are a bunch more options, but I mostly accept the defaults.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Also, install `firebase` node module:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```
+npm install --save firebase
+```
 
-### `npm run eject`
+In the firebase console, go to your project and then create a new app. I'm calling this one `todo-list`. Once it's created, put the firebase config into a faile called `src/firebase.js`.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  ...
+  appId: "1:1040196214089:web:88420ffeb0daa5482c8e98",
+};
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Next, add a conditional so that it can use the emulator if you're developing locally:
 
-## Learn More
+```
+if (location.hostname === "localhost") {
+   config = {
+      databaseURL: "http://localhost:9000/?ns=gpt3-experiments-sparktime",
+   };
+}
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+# Fire up the dev environment
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+You'll need two tabs: one to run the emulator and one to run the react app.
 
-### Code Splitting
+To start the emulator, run:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
+firebase emulators:start
+```
