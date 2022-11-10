@@ -1,27 +1,39 @@
-import Button from "@mui/material/Button";
+import { useEffect, useState, useContext } from "react";
+
 import { db } from "../firebase";
+import { AuthContext } from "../auth_context";
+
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
 
 import "./App.css";
 
 function App() {
+  const authContext = useContext(AuthContext);
+
+  const [item, setItem] = useState("");
+
   return (
     <div className="App">
       <h1>Welcome to the todo list</h1>
-      <Button
-        onClick={async () => {
-          console.log("clicked");
-          var myRec = {
-            name: "test",
-            description: "test",
-            completed: false,
-            value: Math.random() * 100,
-          };
-          var x = await db.collection("todos").add(myRec);
-          console.log("x", x);
+      {authContext.user ? "Logged in" : "Not logged in"}
+      <TextField
+        variant="outlined"
+        label="Enter a to do item"
+        value={item}
+        onChange={(e) => {
+          setItem(e.target.value);
         }}
-      >
-        Click Me!
-      </Button>
+        onKeyPress={async (e) => {
+          if (e.key === "Enter") {
+            var x = await db.collection("todos").add({
+              item: item,
+              completed: false,
+            });
+            setItem("");
+          }
+        }}
+      />
     </div>
   );
 }

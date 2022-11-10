@@ -26,7 +26,7 @@ const firebaseAuth = firebase.auth();
 
 if (window.location.hostname === "localhost") {
   console.log("Using emulator");
-  db.useEmulator("http://localhost", 8080);
+  db.useEmulator("localhost", 8080); // Adding http makes this break
   firebaseAuth.useEmulator("http://localhost", 9099);
 }
 
