@@ -113,7 +113,7 @@ firebase deploy --only firestore:rules
 
 ## Firestore indexes
 
-Add indexes in the file `fiewstore.indexes.json`. This [Full Stack Firebase](https://www.fullstackfirebase.com/cloud-firestore/indexes) article has more detail, but the basic format is:
+Add indexes in the file `firestore.indexes.json`. This [Full Stack Firebase](https://www.fullstackfirebase.com/cloud-firestore/indexes) article has more detail, but the basic format is:
 
 ```
 {
