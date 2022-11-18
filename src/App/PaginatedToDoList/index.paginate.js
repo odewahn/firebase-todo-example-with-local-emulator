@@ -3,11 +3,7 @@ import { useEffect, useState, useContext } from "react";
 import { db } from "../firebase";
 import { AuthContext } from "../auth_context";
 
-import {
-  fetchFistPage,
-  fetchNextPage,
-  fetchPreviosPage,
-} from "../PaginatedToDoList/todo-state";
+import { fetchFirstPage, fetchAfter, fetchBefore } from "./todo-state";
 
 import TextField from "@mui/material/TextField";
 import List from "@mui/material/List";
@@ -16,6 +12,7 @@ import ListItemText from "@mui/material/ListItemText";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Checkbox from "@mui/material/Checkbox";
+import Button from "@mui/material/Button";
 
 import "./App.css";
 
@@ -26,20 +23,25 @@ function App() {
 
   const [item, setItem] = useState("");
   const [items, setItems] = useState([]);
+  const [userId, setUserId] = useState();
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [hasPreviousPage, setHasPreviousPage] = useState(false);
 
-  // Set up the snapshot listener
   useEffect(() => {
     if (authContext.user) {
-      db.collection("todos")
-        .where("user", "==", authContext.user.user.uid)
-        .orderBy("createdAt", "asc")
-        .onSnapshot((snapshot) => {
-          setItems(snapshot.docs.map((doc) => doc.data()));
-        });
+      setUserId(authContext.user.user.uid);
     }
   }, [authContext]);
 
-  if (authContext.user === null) {
+  // Get the first page of the users data
+  useEffect(() => {
+    fetchFirstPage(userId, PAGE_SIZE).then((res) => {
+      setItems(res.data);
+      setHasNextPage(res.morePagesAvailable);
+    });
+  }, [userId]);
+
+  if (!userId) {
     return <authContext.SignIn />;
   }
 
@@ -59,6 +61,7 @@ function App() {
         <Checkbox
           edge="start"
           checked={item.completed}
+          tabIndex={-1}
           disableRipple
           onClick={async () => {
             await db.collection("todos").doc(item.id).update({
@@ -66,6 +69,7 @@ function App() {
             });
           }}
         />
+
         <ListItemText primary={item.name} />
       </ListItem>
     );
@@ -85,24 +89,59 @@ function App() {
           if (e.key === "Enter") {
             // Create a new record, making sure to store it's key as a field for later reference
             var docRef = db.collection("todos").doc();
-            docRef.set({
-              id: docRef.id,
-              name: item,
-              user: authContext.user.user.uid,
-              completed: false,
-              createdAt: Date.now(),
-            });
-            setItem("");
+            docRef
+              .set({
+                id: docRef.id,
+                name: item,
+                user: authContext.user.user.uid,
+                completed: false,
+                createdAt: Date.now(),
+              })
+              .then(() => {
+                setItem("");
+                //Now fetch last page with the new item
+                fetchBefore(userId, docRef.id, PAGE_SIZE).then((res) => {
+                  setItems(res.data);
+                  setHasPreviousPage(res.morePagesAvailable);
+                });
+              });
           }
         }}
       />
       <hr />
       <div className="todoList">
-        <List dense="true">
+        <List>
           {items.map((item) => {
             return listItem(item);
           })}
         </List>
+        <Button
+          variant="contained"
+          disabled={!hasPreviousPage}
+          onClick={() => {
+            fetchBefore(userId, items[0].id, PAGE_SIZE).then((res) => {
+              setItems(res.data);
+              setHasPreviousPage(res.morePagesAvailable);
+            });
+          }}
+        >
+          Previous
+        </Button>
+        <Button
+          variant="contained"
+          disabled={!hasNextPage}
+          onClick={() => {
+            fetchAfter(userId, items[items.length - 1].id, PAGE_SIZE).then(
+              (res) => {
+                setItems(res.data);
+                setHasPreviousPage(true);
+                setHasNextPage(res.morePagesAvailable);
+              }
+            );
+          }}
+        >
+          Next
+        </Button>
       </div>
     </div>
   );

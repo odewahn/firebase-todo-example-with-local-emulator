@@ -1,3 +1,17 @@
+This repo has an example of how to set up a simple "To Do" list app in firebase with the following features:
+
+- Local development with firebase emulator
+- Authentication with `react-firebaseui` stored in a React context (see `auth_context.js`)
+- Set up for `react-router` (v. 5)
+- Local ACL rules in `firestore.rules`
+- Local index development in `firestore.indexes.json`
+- Create/Update/Delete examples for list items
+- Snapshot-based updates for the UI as it progresses
+
+There is also a start at pagination, although this is not complere. Firebase seems to make this hard, even though it's a basic feature.
+
+While I like the ability to have all the backend features just work without any ops, there is a serious tradeoff in making the kinds of queries you could do with something like SQL. So, caveat emptor.
+
 # Setting up
 
 Create the initial project:
@@ -9,7 +23,13 @@ npx create-react-app todo-list
 Install some dependencies:
 
 ```
-npm install --save react-router-dom@5.2.0 @mui/material @emotion/react @emotion/styled @mui/icons-material
+npm install --save --legacy-peer-deps \
+   react-router-dom@5.2.0 \
+   @mui/material \
+   @emotion/react \
+   @emotion/styled \
+   @mui/icons-material \
+   react-firebaseui
 ```
 
 I also usually like to clear out some files in here.
@@ -74,3 +94,58 @@ To start the emulator, run:
 ```
 firebase emulators:start
 ```
+
+In another tab, start the dev environment:
+
+```
+npm run start
+```
+
+# Deployment
+
+## Deploy firestore rules
+
+Add rules in the file `firestore.rules`. Here's an example:
+
+```
+firebase deploy --only firestore:rules
+```
+
+## Firestore indexes
+
+Add indexes in the file `fiewstore.indexes.json`. This [Full Stack Firebase](https://www.fullstackfirebase.com/cloud-firestore/indexes) article has more detail, but the basic format is:
+
+```
+{
+  "indexes": [
+    {
+      "collectionId": "todos",
+      "fields": [
+        {
+          "fieldPath": "user",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
+```
+
+Note that in general you have to have two fields in an index, not just one. Weird.
+
+Once it's done, you can deploy it like this:
+
+```
+firebase deploy --only firestore:indexes
+```
+
+# Other Notes
+
+## Authentication
+
+- https://lo-victoria.com/beginner-friendly-guide-to-react-authentication-system-with-firebase

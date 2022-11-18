@@ -1,0 +1,21 @@
+.main {
+    border: 1px solid #eee;
+    border-radius: 5px;
+    width: 20%;
+    padding: 24px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+.interior {
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+.loginButton {
+    margin-top: 24px;
+    width: 100%;
+}
