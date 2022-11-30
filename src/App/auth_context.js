@@ -11,6 +11,21 @@ const AuthContext = createContext();
 
 const AuthProvider = (props) => {
   const [user, setUser] = useState(null);
+
+  // Setup listener for the user.  Doing this in onAuthStateChanged
+  // makes the auth persist across page refreshes.
+  useEffect(() => {
+    firebaseAuth.onAuthStateChanged((user) => {
+      if (user) {
+        console.log("onAuthStateChanged ", user);
+        setUser(user);
+      } else {
+        console.log("loggin out");
+        setUser(null);
+      }
+    });
+  }, []);
+
   // Configure FirebaseUI.
   const uiConfig = {
     // Popup signin flow rather than redirect flow.
@@ -19,8 +34,7 @@ const AuthProvider = (props) => {
     signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
     callbacks: {
       signInSuccessWithAuthResult: (user) => {
-        console.log(user);
-        setUser(user);
+        console.log("Loggin in", user);
       },
     },
   };
